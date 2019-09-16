@@ -53,7 +53,15 @@ def mirror(name):
 
 @app.route("/contacts", methods=['GET'])
 def get_all_contacts():
-    return create_response({"contacts": db.get('contacts')})
+    hobby = request.args.get('hobby')
+    if (id is None):
+        return create_response({"contacts": db.get('contacts')})
+    else:
+        relevant_contacts = []
+        for obj in db.get('contacts'):
+            if (obj.get('hobby') == hobby):
+                relevant_contacts.append(obj)
+    return create_response({"contacts": relevant_contacts})
 
 @app.route("/contacts/<id>", methods=['GET'])
 def get_single_contact(id):
@@ -62,12 +70,37 @@ def get_single_contact(id):
     else:
         return create_response(db.getById('contacts',int(id)))
 
-@app.route("/contacts?<hobby>", methods=['GET'])
-def get_single_contact(hobby):
-    if db.getById('contacts',int(id)) is None:
-        return create_response(status=404,message = "Sorry, there is no existing contact with that ID")
+@app.route("/contacts/", methods=['POST'])
+def post_single_contact():
+    BAD_DATA_DICT = {'response': 422, 'message': 'please include all data fields: name, age and team'}
+    name = request.args.get('name') if request.args.get('name') else return BAD_DATA_DICT
+    hobby = request.args.get('hobby') if request.args.get('hobby') else return BAD_DATA_DICT
+    team = request.args.get('nickname') if request.args.get('nickname') else return BAD_DATA_DICT
+    contact_data = {
+        'hobby': hobby,
+        'id': len(db.get('contacts')) + 1,
+        'name': name,
+        'nickname': nickname
+    }
+    db['contacts'].append(contact_data)
+    return create_reponse(status=201,contact_data);
+#Was not able to complete full functionality
+@app.route("/contacts/<id>", methods=['PUT'])
+def post_single_contact(id):
+    name = request.args.get('name')
+    nickname = request.args.get('nickname')
+    hobyy = request.args.get('hobby')
+    contact_data = {
+        'name': name,
+        'age': age,
+        'id': len(db.get('contacts')) + 1,
+        'team': team
+    }
+    if db.getById('contacts', int(id)) is None:
+        return create_reponse(status=201,contact_data);
     else:
-        return create_response(db.getById('contacts',int(id)))
+        db.getById(id).append(contact_data);
+    return create_reponse(status=404,message = "There are no users with the id");
 
 @app.route("/shows/<id>", methods=['DELETE'])
 def delete_show(id):
